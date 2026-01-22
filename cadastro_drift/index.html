@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>cadstro drift</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body>
+    <main class="page">
+      <section class="hero">
+        <div class="hero__content">
+          <span class="eyebrow">Cadastro de clientes</span>
+          <h1>Cadastro vídeos - Drift</h1>
+          <p>
+            Preencha os dados abaixo para registrar novos clientes na planilha de
+            atendimento. Os dados serão enviados diretamente para o Google Sheets.
+          </p>
+        </div>
+
+        <div class="hero__card">
+          <form id="cadastro-form">
+            <label class="field">
+              <span>Nome completo</span>
+              <input
+                id="nome"
+                type="text"
+                name="nome"
+                placeholder="Ex: Maria Santos"
+                autocomplete="name"
+                required
+              />
+            </label>
+
+            <label class="field">
+              <span>Número de telefone</span>
+              <input
+                id="telefone"
+                type="tel"
+                name="telefone"
+                placeholder="(11)91234-5678"
+                autocomplete="tel"
+                required
+              />
+            </label>
+
+            <label class="field">
+              <span>E-mail</span>
+              <input
+                id="email"
+                type="email"
+                name="email"
+                placeholder="maria@email.com"
+                autocomplete="email"
+                required
+              />
+            </label>
+
+            <label class="field">
+              <span>Número de cadastro</span>
+              <input
+                id="cadastro"
+                type="text"
+                name="cadastro"
+                placeholder="Ex: 000123"
+                required
+              />
+            </label>
+
+            <!-- SUBSTITUI O CAMPO "CARRO" POR "HORÁRIO" COM LISTA SUSPENSA -->
+            <label class="field">
+              <span>Horário</span>
+
+              <!-- Select principal -->
+              <select id="horario-select" aria-label="Selecione um horário" required>
+                <option value="" selected disabled>Selecione...</option>
+                <option value="11:30">11:30</option>
+                <option value="14:30">14:30</option>
+                <option value="16:00">16:00</option>
+                <option value="__outro__">Outro horário</option>
+              </select>
+
+              <!-- Input que aparece só se escolher "Outro horário" -->
+              <input
+                id="horario-outro"
+                type="text"
+                inputmode="numeric"
+                placeholder="Ex: 13:15"
+                autocomplete="off"
+                style="display: none;"
+              />
+
+              <!-- Campo real que será enviado (mesmo field para todos os horários) -->
+              <input id="horario" type="hidden" name="horario" required />
+            </label>
+
+            <button type="submit">Enviar cadastro</button>
+            <p class="status" id="status-message" aria-live="polite"></p>
+          </form>
+        </div>
+      </section>
+
+      <section class="info">
+        <div class="info__item">
+          <h2>Campos obrigatórios</h2>
+          <p>
+            Garantimos que nome, telefone, e-mail e número de cadastro sejam
+            preenchidos corretamente antes do envio.
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <!-- Você pode manter seu script.js externo.
+         Coloque o bloco abaixo DENTRO do seu script.js,
+         ou mantenha aqui antes do </body> (como está agora). -->
+
+    
+  </body>
+</html>
