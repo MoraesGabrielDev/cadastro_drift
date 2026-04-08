@@ -1,127 +1,110 @@
 <!doctype html>
-<html lang="pt-br">
+<html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>cadstro drift</title>
-    <link rel="stylesheet" href="styles.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>F1 2025 | Telemetria de Voltas Rápidas</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;700;800&display=swap"
       rel="stylesheet"
     />
+    <link rel="stylesheet" href="styles.css" />
   </head>
-
   <body>
     <main class="page">
-      <section class="hero">
-        <div class="hero__content">
-          <span class="eyebrow">Cadastro de clientes</span>
-          <h1>Cadastro vídeos - Drift</h1>
-          <p>
-            Preencha os dados abaixo para registrar novos clientes na planilha de
-            atendimento. Os dados serão enviados diretamente para o Google Sheets.
-          </p>
-        </div>
+      <header class="hero">
+        <p class="eyebrow">Formula 1 2025</p>
+        <h1>Tela de Telemetria</h1>
+        <p>
+          Compare e atualize o melhor tempo de volta de <strong>3 simuladores</strong> por
+          pista, com ranking automático e resumo dos recordes.
+        </p>
+      </header>
 
-        <div class="hero__card">
-          <form id="cadastro-form">
-            <label class="field">
-              <span>Nome completo</span>
-              <input
-                id="nome"
-                type="text"
-                name="nome"
-                placeholder="Ex: Maria Santos"
-                autocomplete="name"
-                required
-              />
-            </label>
-
-            <label class="field">
-              <span>Número de telefone</span>
-              <input
-                id="telefone"
-                type="tel"
-                name="telefone"
-                placeholder="(11)91234-5678"
-                autocomplete="tel"
-                required
-              />
-            </label>
-
-            <label class="field">
-              <span>E-mail</span>
-              <input
-                id="email"
-                type="email"
-                name="email"
-                placeholder="maria@email.com"
-                autocomplete="email"
-                required
-              />
-            </label>
-
-            <label class="field">
-              <span>Número de cadastro</span>
-              <input
-                id="cadastro"
-                type="text"
-                name="cadastro"
-                placeholder="Ex: 000123"
-                required
-              />
-            </label>
-
-            <!-- SUBSTITUI O CAMPO "CARRO" POR "HORÁRIO" COM LISTA SUSPENSA -->
-            <label class="field">
-              <span>Horário</span>
-
-              <!-- Select principal -->
-              <select id="horario-select" aria-label="Selecione um horário" required>
-                <option value="" selected disabled>Selecione...</option>
-                <option value="11:30">11:30</option>
-                <option value="14:30">14:30</option>
-                <option value="16:00">16:00</option>
-                <option value="__outro__">Outro horário</option>
-              </select>
-
-              <!-- Input que aparece só se escolher "Outro horário" -->
-              <input
-                id="horario-outro"
-                type="text"
-                inputmode="numeric"
-                placeholder="Ex: 13:15"
-                autocomplete="off"
-                style="display: none;"
-              />
-
-              <!-- Campo real que será enviado (mesmo field para todos os horários) -->
-              <input id="horario" type="hidden" name="horario" required />
-            </label>
-
-            <button type="submit">Enviar cadastro</button>
-            <p class="status" id="status-message" aria-live="polite"></p>
-          </form>
-        </div>
+      <section class="card controls">
+        <label for="track-select">Pista</label>
+        <select id="track-select" aria-label="Selecionar pista"></select>
       </section>
 
-      <section class="info">
-        <div class="info__item">
-          <h2>Campos obrigatórios</h2>
-          <p>
-            Garantimos que nome, telefone, e-mail e número de cadastro sejam
-            preenchidos corretamente antes do envio.
-          </p>
+      <section class="card integration">
+        <h2>Integração com simuladores</h2>
+        <p>
+          Informe a URL de um endpoint JSON dos seus simuladores e clique em sincronizar.
+        </p>
+        <div class="integration__row">
+          <input
+            id="api-endpoint"
+            type="url"
+            placeholder="Ex: https://meu-servidor.com/api/f1/telemetria"
+          />
+          <button id="sync-button" type="button">Sincronizar dados reais</button>
         </div>
+        <small>
+          Formato esperado: { "Interlagos": { "Simulador A": "1:09.222", "Simulador B":
+          "1:09.330", "Simulador C": "1:09.401" } }
+        </small>
+      </section>
+
+      <section class="grid">
+        <article class="card">
+          <h2>Voltas dos Simuladores</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Simulador</th>
+                <th>Melhor volta</th>
+                <th>Diferença</th>
+              </tr>
+            </thead>
+            <tbody id="laps-body"></tbody>
+          </table>
+        </article>
+
+        <article class="card summary">
+          <h2>Resumo da Pista</h2>
+          <p><span>Pista:</span> <strong id="selected-track"></strong></p>
+          <p><span>Mais rápido:</span> <strong id="best-sim"></strong></p>
+          <p><span>Tempo recorde:</span> <strong id="best-lap"></strong></p>
+          <p class="status" id="status-message" aria-live="polite"></p>
+        </article>
+      </section>
+
+      <section class="card">
+        <h2>Atualizar tempos dos 3 simuladores</h2>
+        <form id="lap-form" class="lap-form">
+          <label>
+            Simulador A
+            <input type="text" id="sim-a" placeholder="Ex: 1:29.520" required />
+          </label>
+          <label>
+            Simulador B
+            <input type="text" id="sim-b" placeholder="Ex: 1:29.612" required />
+          </label>
+          <label>
+            Simulador C
+            <input type="text" id="sim-c" placeholder="Ex: 1:29.884" required />
+          </label>
+          <button type="submit">Salvar tempos da pista</button>
+        </form>
+      </section>
+
+      <section class="card">
+        <h2>Volta mais rápida de cada pista</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Pista</th>
+              <th>Simulador líder</th>
+              <th>Tempo</th>
+            </tr>
+          </thead>
+          <tbody id="records-body"></tbody>
+        </table>
       </section>
     </main>
 
-    <!-- Você pode manter seu script.js externo.
-         Coloque o bloco abaixo DENTRO do seu script.js,
-         ou mantenha aqui antes do </body> (como está agora). -->
-
-    
+    <script src="script.js"></script>
   </body>
 </html>

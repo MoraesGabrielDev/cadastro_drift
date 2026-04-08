@@ -1,13 +1,11 @@
 :root {
-  color-scheme: light;
-  font-family: "Barlow", system-ui, -apple-system, sans-serif;
-  --bg: #e9e6d0;
-  --primary: #b10f0f;
-  --secondary: #f8b4d9;
-  --dark: #1e1b2e;
-  --card: #ffffff;
-  --muted: #6f6a85;
-  --shadow: rgba(22, 12, 39, 0.12);
+  --bg: #070b16;
+  --card: #12192c;
+  --primary: #ff1f43;
+  --accent: #42e8ff;
+  --text: #eef2ff;
+  --muted: #9caad0;
+  --border: #26304d;
 }
 
 * {
@@ -17,190 +15,178 @@
 }
 
 body {
-  background: var(--bg);
+  background: radial-gradient(circle at top, #0f1730, var(--bg));
+  color: var(--text);
+  font-family: "Barlow", sans-serif;
   min-height: 100vh;
 }
 
 .page {
-  max-width: 1100px;
+  max-width: 1020px;
   margin: 0 auto;
-  padding: 48px 24px 64px;
-  display: flex;
-  flex-direction: column;
-  gap: 40px;
-}
-
-.hero {
+  padding: 32px 20px 50px;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 32px;
-  align-items: center;
-}
-
-.hero__content h1 {
-  font-size: clamp(2.2rem, 3vw, 3.2rem);
-  margin: 12px 0 16px;
-  color: var(--primary);
-}
-
-.hero__content p {
-  font-size: 1.1rem;
-  color: var(--muted);
-  line-height: 1.6;
-}
-
-.eyebrow {
-  text-transform: uppercase;
-  letter-spacing: 0.25rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--muted);
-}
-
-.hero__card {
-  background: var(--card);
-  padding: 28px;
-  border-radius: 24px;
-  box-shadow: 0 16px 40px var(--shadow);
-  border: 1px solid #f0e7f8;
-}
-
-form {
-  display: flex;
-  flex-direction: column;
   gap: 18px;
 }
 
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  font-weight: 600;
+.hero h1 {
+  font-size: clamp(2rem, 5vw, 3rem);
+  margin: 6px 0 10px;
 }
 
-.field span {
-  color: var(--dark);
-}
-
-input {
-  padding: 12px 16px;
-  border-radius: 12px;
-  border: 1px solid #e2d7ee;
-  font-size: 1rem;
-  font-family: inherit;
-  background: #fcfbff;
-}
-
-input:focus {
-  outline: 2px solid var(--secondary);
-  border-color: transparent;
-}
-
-button {
-  padding: 14px 18px;
-  border-radius: 14px;
-  border: none;
-  background: linear-gradient(135deg, var(--primary), #b10f0f);
-  color: white;
-  font-weight: 700;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  box-shadow: 0 10px 20px rgba(91, 43, 130, 0.25);
-}
-
-button:hover {
-  transform: translateY(-1px);
-}
-
-.status {
-  min-height: 20px;
-  font-size: 0.95rem;
-  color: var(--muted);
-}
-
-.info {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 24px;
-}
-
-.info__item {
-  background: rgba(255, 255, 255, 0.7);
-  border-radius: 20px;
-  padding: 20px 22px;
-  border: 1px solid #eadcf4;
-}
-
-.info__item h2 {
-  color: var(--primary);
-  font-size: 1.2rem;
-  margin-bottom: 8px;
-}
-
-.info__item p {
+.hero p {
   color: var(--muted);
   line-height: 1.5;
 }
 
-code {
-  background: #f0e7f8;
-  padding: 2px 6px;
-  border-radius: 6px;
+.eyebrow {
+  color: var(--accent);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.15rem;
+  font-size: 0.75rem;
+}
+
+.card {
+  background: linear-gradient(160deg, rgba(18, 25, 44, 0.95), rgba(9, 14, 26, 0.95));
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 18px;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+label {
+  font-weight: 700;
+}
+
+select,
+input,
+button {
+  background: #0b1120;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 11px 14px;
+  font: inherit;
+}
+
+select {
+  flex: 1;
+}
+
+.grid {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: 2fr 1fr;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+th {
+  color: var(--muted);
+  font-weight: 600;
+}
+
+tr.highlight {
+  background: rgba(66, 232, 255, 0.1);
+}
+
+.delta {
+  color: var(--muted);
+}
+
+.summary {
+  display: grid;
+  gap: 10px;
+}
+
+.summary p {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 9px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.summary span {
+  color: var(--muted);
   font-size: 0.85rem;
 }
 
-
-.field input,
-.field select {
-  width: 100%;
-  padding: 14px 16px;
-  border: 1px solid rgba(120, 90, 200, 0.25); /* ajuste para a sua borda atual */
-  border-radius: 12px;                         /* ajuste para o seu radius atual */
-  background: #fff;
-  font: inherit;
-  color: inherit;
-  outline: none;
-  box-sizing: border-box;
+.status {
+  min-height: 55px;
+  color: var(--accent);
+  font-weight: 600;
 }
 
-/* Placeholder/estado "Selecione..." com cara de placeholder */
-.field select:invalid {
-  color: rgba(0, 0, 0, 0.45); /* ajuste para combinar com seu placeholder */
+.lap-form {
+  margin-top: 12px;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-items: end;
 }
 
-/* Focus igual ao input */
-.field input:focus,
-.field select:focus {
-  border-color: rgba(120, 90, 200, 0.55); /* ajuste para sua cor de foco */
-  box-shadow: 0 0 0 4px rgba(120, 90, 200, 0.12); /* ajuste para seu glow */
+.lap-form label {
+  display: grid;
+  gap: 8px;
 }
 
-/* Deixa o select com o mesmo "acabamento" do input e seta discreta */
-.field select {
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-
-  /* seta do select (custom) */
-  background-image:
-    linear-gradient(45deg, transparent 50%, rgba(0,0,0,.55) 50%),
-    linear-gradient(135deg, rgba(0,0,0,.55) 50%, transparent 50%);
-  background-position:
-    calc(100% - 18px) 50%,
-    calc(100% - 12px) 50%;
-  background-size: 6px 6px, 6px 6px;
-  background-repeat: no-repeat;
-
-  padding-right: 44px; /* espaço para a seta */
+button {
+  background: linear-gradient(145deg, #de1236, #ff1f43);
+  border: 0;
+  font-weight: 700;
+  cursor: pointer;
 }
 
-@media (max-width: 720px) {
-  .page {
-    padding: 32px 18px 48px;
+@media (max-width: 860px) {
+  .grid,
+  .lap-form {
+    grid-template-columns: 1fr;
   }
+}
 
-  .hero__card {
-    padding: 22px;
+
+.integration p {
+  margin: 8px 0 12px;
+  color: var(--muted);
+}
+
+.integration small {
+  display: block;
+  margin-top: 10px;
+  color: var(--muted);
+}
+
+.integration__row {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 10px;
+}
+
+#sync-button {
+  white-space: nowrap;
+}
+
+@media (max-width: 860px) {
+  .integration__row {
+    grid-template-columns: 1fr;
   }
 }

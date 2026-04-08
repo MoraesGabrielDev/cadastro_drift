@@ -1,76 +1,274 @@
-const form = document.getElementById("cadastro-form");
+const STORAGE_KEY = "f1-2025-telemetry";
+const API_ENDPOINT_KEY = "f1-2025-api-endpoint";
+
+const defaultData = {
+  "Bahrain International Circuit": {
+    "Simulador A": "1:30.742",
+    "Simulador B": "1:30.911",
+    "Simulador C": "1:31.224",
+  },
+  Jeddah: {
+    "Simulador A": "1:28.997",
+    "Simulador B": "1:29.112",
+    "Simulador C": "1:29.331",
+  },
+  "Albert Park": {
+    "Simulador A": "1:18.430",
+    "Simulador B": "1:18.506",
+    "Simulador C": "1:18.649",
+  },
+  Interlagos: {
+    "Simulador A": "1:09.521",
+    "Simulador B": "1:09.333",
+    "Simulador C": "1:09.614",
+  },
+  "Las Vegas": {
+    "Simulador A": "1:34.785",
+    "Simulador B": "1:34.728",
+    "Simulador C": "1:35.041",
+  },
+};
+
+let telemetryData = loadTelemetryData();
+
+const trackSelect = document.getElementById("track-select");
+const lapsBody = document.getElementById("laps-body");
+const recordsBody = document.getElementById("records-body");
+const lapForm = document.getElementById("lap-form");
+const selectedTrackLabel = document.getElementById("selected-track");
+const bestSimLabel = document.getElementById("best-sim");
+const bestLapLabel = document.getElementById("best-lap");
 const statusMessage = document.getElementById("status-message");
+const apiEndpointInput = document.getElementById("api-endpoint");
+const syncButton = document.getElementById("sync-button");
 
-const nomeInput = document.getElementById("nome");
-const carroInput = document.getElementById("horario");
+const simAInput = document.getElementById("sim-a");
+const simBInput = document.getElementById("sim-b");
+const simCInput = document.getElementById("sim-c");
 
-const scriptURL =
-  "https://script.google.com/macros/s/AKfycbwlSHrIN6PSvIaF3RRMXnxs9qtssO-klef__Tr8Q9CMTjTgJnsqgGwy9Hub6frwJl4n/exec";
-
-// Mantém os espaços como o usuário digita e capitaliza a primeira letra de cada palavra
-function titleCaseKeepSpaces(value) {
-  if (!value) return value;
-
-  const lower = value.toLowerCase();
-
-  // Capitaliza a primeira letra do texto e a primeira letra após qualquer espaço
-  // Preserva espaços múltiplos e espaços no final
-  return lower.replace(/(^|\s)([a-zà-ÿ])/g, (match, p1, p2) => p1 + p2.toUpperCase());
-}
-
-// Aplica titleCase sem “comer” espaços durante a digitação
-function applyTitleCaseLive(inputEl) {
-  if (!inputEl) return;
-
-  inputEl.addEventListener("input", (e) => {
-    const el = e.target;
-    const start = el.selectionStart;
-    const end = el.selectionEnd;
-
-    const before = el.value;
-    const after = titleCaseKeepSpaces(before);
-
-    // Só atualiza se mudou (evita mexer no cursor sem necessidade)
-    if (after !== before) {
-      el.value = after;
-      try {
-        el.setSelectionRange(start, end);
-      } catch (_) {}
-    }
-  });
-}
-
-applyTitleCaseLive(nomeInput);
-applyTitleCaseLive(carroInput);
-
-form.addEventListener("submit", async (event) => {
-  event.preventDefault();
-
-  statusMessage.textContent = "Enviando cadastro...";
-
-  // Garantia final antes de enviar (mantendo espaços internos)
-  if (nomeInput) nomeInput.value = titleCaseKeepSpaces(nomeInput.value);
-  if (carroInput) carroInput.value = titleCaseKeepSpaces(carroInput.value);
-
-  const formData = new FormData(form);
+function loadTelemetryData() {
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (!saved) {
+    return structuredClone(defaultData);
+  }
 
   try {
-    const response = await fetch(scriptURL, {
-      method: "POST",
-      body: formData,
-      mode: "no-cors",
-    });
+    const parsed = JSON.parse(saved);
+    return parsed;
+  } catch {
+    return structuredClone(defaultData);
+  }
+}
 
-    // no-cors retorna resposta "opaque", então não dá para ler status real
-    if (response.type !== "opaque" && !response.ok) {
-      throw new Error("Falha ao enviar os dados.");
+function saveTelemetryData() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(telemetryData));
+}
+
+function toMilliseconds(lapTime) {
+  const [minutes, secondsWithMs] = lapTime.split(":");
+  const [seconds, milliseconds] = secondsWithMs.split(".");
+
+  return Number(minutes) * 60000 + Number(seconds) * 1000 + Number(milliseconds);
+}
+
+function formatDelta(deltaMs) {
+  if (deltaMs === 0) {
+    return "Líder";
+  }
+
+  const seconds = (deltaMs / 1000).toFixed(3);
+  return `+${seconds}s`;
+}
+
+function isValidLapTime(value) {
+  return /^\d:\d{2}\.\d{3}$/.test(value.trim());
+}
+
+function isValidTrackPayload(trackData) {
+  if (!trackData || typeof trackData !== "object") {
+    return false;
+  }
+
+  const simulatorNames = ["Simulador A", "Simulador B", "Simulador C"];
+  return simulatorNames.every((simName) => isValidLapTime(trackData[simName] || ""));
+}
+
+function mergeExternalTelemetry(payload) {
+  const entries = Object.entries(payload).filter(([trackName, trackData]) => {
+    return Boolean(trackName.trim()) && isValidTrackPayload(trackData);
+  });
+
+  if (!entries.length) {
+    return 0;
+  }
+
+  entries.forEach(([trackName, trackData]) => {
+    telemetryData[trackName] = {
+      "Simulador A": trackData["Simulador A"],
+      "Simulador B": trackData["Simulador B"],
+      "Simulador C": trackData["Simulador C"],
+    };
+  });
+
+  return entries.length;
+}
+
+function populateTracks() {
+  const selected = trackSelect.value;
+  trackSelect.innerHTML = "";
+
+  Object.keys(telemetryData).forEach((trackName) => {
+    const option = document.createElement("option");
+    option.value = trackName;
+    option.textContent = trackName;
+    trackSelect.appendChild(option);
+  });
+
+  trackSelect.value = telemetryData[selected] ? selected : Object.keys(telemetryData)[0];
+}
+
+function getTrackRanking(trackName) {
+  const simulators = telemetryData[trackName];
+  return Object.entries(simulators)
+    .map(([simName, lap]) => ({
+      simName,
+      lap,
+      ms: toMilliseconds(lap),
+    }))
+    .sort((a, b) => a.ms - b.ms);
+}
+
+function fillForm(trackName) {
+  const simulators = telemetryData[trackName];
+  simAInput.value = simulators["Simulador A"];
+  simBInput.value = simulators["Simulador B"];
+  simCInput.value = simulators["Simulador C"];
+}
+
+function renderTrack(trackName) {
+  const ordered = getTrackRanking(trackName);
+  const best = ordered[0];
+
+  lapsBody.innerHTML = "";
+
+  ordered.forEach((simData, index) => {
+    const row = document.createElement("tr");
+    if (index === 0) {
+      row.classList.add("highlight");
     }
 
-    form.reset();
-    statusMessage.textContent =
-      "Cadastro enviado com sucesso! Verifique sua planilha.";
+    row.innerHTML = `
+      <td>${simData.simName}</td>
+      <td>${simData.lap}</td>
+      <td class="delta">${formatDelta(simData.ms - best.ms)}</td>
+    `;
+
+    lapsBody.appendChild(row);
+  });
+
+  selectedTrackLabel.textContent = trackName;
+  bestSimLabel.textContent = best.simName;
+  bestLapLabel.textContent = best.lap;
+  fillForm(trackName);
+}
+
+function renderTrackRecords() {
+  recordsBody.innerHTML = "";
+
+  Object.keys(telemetryData)
+    .map((trackName) => {
+      const fastest = getTrackRanking(trackName)[0];
+      return {
+        trackName,
+        simName: fastest.simName,
+        lap: fastest.lap,
+        ms: fastest.ms,
+      };
+    })
+    .sort((a, b) => a.ms - b.ms)
+    .forEach((record) => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${record.trackName}</td>
+        <td>${record.simName}</td>
+        <td>${record.lap}</td>
+      `;
+      recordsBody.appendChild(row);
+    });
+}
+
+function rerenderAll() {
+  populateTracks();
+  renderTrack(trackSelect.value);
+  renderTrackRecords();
+}
+
+async function syncTelemetryFromApi() {
+  const endpoint = apiEndpointInput.value.trim();
+
+  if (!endpoint) {
+    statusMessage.textContent = "Informe a URL do endpoint antes de sincronizar.";
+    return;
+  }
+
+  statusMessage.textContent = "Sincronizando dados reais...";
+
+  try {
+    const response = await fetch(endpoint);
+    if (!response.ok) {
+      throw new Error(`Falha HTTP ${response.status}`);
+    }
+
+    const payload = await response.json();
+    const importedTracks = mergeExternalTelemetry(payload);
+
+    if (!importedTracks) {
+      statusMessage.textContent =
+        "Nenhuma pista válida encontrada no JSON. Verifique o formato esperado.";
+      return;
+    }
+
+    localStorage.setItem(API_ENDPOINT_KEY, endpoint);
+    saveTelemetryData();
+    rerenderAll();
+    statusMessage.textContent = `Sincronização concluída. ${importedTracks} pista(s) atualizada(s).`;
   } catch (error) {
     statusMessage.textContent =
-      "Não foi possível enviar. Revise o link do Google Apps Script.";
+      "Erro ao sincronizar. Confira CORS, URL do endpoint e formato do JSON.";
   }
+}
+
+trackSelect.addEventListener("change", (event) => {
+  renderTrack(event.target.value);
+  statusMessage.textContent = "";
 });
+
+lapForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+
+  const simA = simAInput.value.trim();
+  const simB = simBInput.value.trim();
+  const simC = simCInput.value.trim();
+
+  if (![simA, simB, simC].every(isValidLapTime)) {
+    statusMessage.textContent =
+      "Formato inválido. Use MM:SS.mmm (ex: 1:29.520) para os 3 simuladores.";
+    return;
+  }
+
+  telemetryData[trackSelect.value] = {
+    "Simulador A": simA,
+    "Simulador B": simB,
+    "Simulador C": simC,
+  };
+
+  saveTelemetryData();
+  renderTrack(trackSelect.value);
+  renderTrackRecords();
+  statusMessage.textContent = "Tempos atualizados com sucesso para a pista selecionada.";
+});
+
+syncButton.addEventListener("click", syncTelemetryFromApi);
+
+apiEndpointInput.value = localStorage.getItem(API_ENDPOINT_KEY) || "";
+rerenderAll();
