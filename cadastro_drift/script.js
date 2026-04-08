@@ -1,4 +1,5 @@
 const STORAGE_KEY = "f1-2025-telemetry";
+const API_ENDPOINT_KEY = "f1-2025-api-endpoint";
 
 const defaultData = {
   "Bahrain International Circuit": {
@@ -38,6 +39,8 @@ const selectedTrackLabel = document.getElementById("selected-track");
 const bestSimLabel = document.getElementById("best-sim");
 const bestLapLabel = document.getElementById("best-lap");
 const statusMessage = document.getElementById("status-message");
+const apiEndpointInput = document.getElementById("api-endpoint");
+const syncButton = document.getElementById("sync-button");
 
 const simAInput = document.getElementById("sim-a");
 const simBInput = document.getElementById("sim-b");
@@ -79,6 +82,35 @@ function formatDelta(deltaMs) {
 
 function isValidLapTime(value) {
   return /^\d:\d{2}\.\d{3}$/.test(value.trim());
+}
+
+function isValidTrackPayload(trackData) {
+  if (!trackData || typeof trackData !== "object") {
+    return false;
+  }
+
+  const simulatorNames = ["Simulador A", "Simulador B", "Simulador C"];
+  return simulatorNames.every((simName) => isValidLapTime(trackData[simName] || ""));
+}
+
+function mergeExternalTelemetry(payload) {
+  const entries = Object.entries(payload).filter(([trackName, trackData]) => {
+    return Boolean(trackName.trim()) && isValidTrackPayload(trackData);
+  });
+
+  if (!entries.length) {
+    return 0;
+  }
+
+  entries.forEach(([trackName, trackData]) => {
+    telemetryData[trackName] = {
+      "Simulador A": trackData["Simulador A"],
+      "Simulador B": trackData["Simulador B"],
+      "Simulador C": trackData["Simulador C"],
+    };
+  });
+
+  return entries.length;
 }
 
 function populateTracks() {
@@ -165,6 +197,47 @@ function renderTrackRecords() {
     });
 }
 
+function rerenderAll() {
+  populateTracks();
+  renderTrack(trackSelect.value);
+  renderTrackRecords();
+}
+
+async function syncTelemetryFromApi() {
+  const endpoint = apiEndpointInput.value.trim();
+
+  if (!endpoint) {
+    statusMessage.textContent = "Informe a URL do endpoint antes de sincronizar.";
+    return;
+  }
+
+  statusMessage.textContent = "Sincronizando dados reais...";
+
+  try {
+    const response = await fetch(endpoint);
+    if (!response.ok) {
+      throw new Error(`Falha HTTP ${response.status}`);
+    }
+
+    const payload = await response.json();
+    const importedTracks = mergeExternalTelemetry(payload);
+
+    if (!importedTracks) {
+      statusMessage.textContent =
+        "Nenhuma pista válida encontrada no JSON. Verifique o formato esperado.";
+      return;
+    }
+
+    localStorage.setItem(API_ENDPOINT_KEY, endpoint);
+    saveTelemetryData();
+    rerenderAll();
+    statusMessage.textContent = `Sincronização concluída. ${importedTracks} pista(s) atualizada(s).`;
+  } catch (error) {
+    statusMessage.textContent =
+      "Erro ao sincronizar. Confira CORS, URL do endpoint e formato do JSON.";
+  }
+}
+
 trackSelect.addEventListener("change", (event) => {
   renderTrack(event.target.value);
   statusMessage.textContent = "";
@@ -195,6 +268,7 @@ lapForm.addEventListener("submit", (event) => {
   statusMessage.textContent = "Tempos atualizados com sucesso para a pista selecionada.";
 });
 
-populateTracks();
-renderTrack(trackSelect.value);
-renderTrackRecords();
+syncButton.addEventListener("click", syncTelemetryFromApi);
+
+apiEndpointInput.value = localStorage.getItem(API_ENDPOINT_KEY) || "";
+rerenderAll();

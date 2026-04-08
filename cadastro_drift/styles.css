@@ -162,3 +162,31 @@ button {
     grid-template-columns: 1fr;
   }
 }
+
+
+.integration p {
+  margin: 8px 0 12px;
+  color: var(--muted);
+}
+
+.integration small {
+  display: block;
+  margin-top: 10px;
+  color: var(--muted);
+}
+
+.integration__row {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 10px;
+}
+
+#sync-button {
+  white-space: nowrap;
+}
+
+@media (max-width: 860px) {
+  .integration__row {
+    grid-template-columns: 1fr;
+  }
+}

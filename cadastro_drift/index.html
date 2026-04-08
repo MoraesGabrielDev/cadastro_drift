@@ -28,6 +28,25 @@
         <select id="track-select" aria-label="Selecionar pista"></select>
       </section>
 
+      <section class="card integration">
+        <h2>Integração com simuladores</h2>
+        <p>
+          Informe a URL de um endpoint JSON dos seus simuladores e clique em sincronizar.
+        </p>
+        <div class="integration__row">
+          <input
+            id="api-endpoint"
+            type="url"
+            placeholder="Ex: https://meu-servidor.com/api/f1/telemetria"
+          />
+          <button id="sync-button" type="button">Sincronizar dados reais</button>
+        </div>
+        <small>
+          Formato esperado: { "Interlagos": { "Simulador A": "1:09.222", "Simulador B":
+          "1:09.330", "Simulador C": "1:09.401" } }
+        </small>
+      </section>
+
       <section class="grid">
         <article class="card">
           <h2>Voltas dos Simuladores</h2>
