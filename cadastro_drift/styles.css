@@ -22,7 +22,7 @@ body {
 }
 
 .page {
-  max-width: 980px;
+  max-width: 1020px;
   margin: 0 auto;
   padding: 32px 20px 50px;
   display: grid;
@@ -64,14 +64,19 @@ label {
   font-weight: 700;
 }
 
-select {
-  flex: 1;
+select,
+input,
+button {
   background: #0b1120;
   color: var(--text);
   border: 1px solid var(--border);
   border-radius: 10px;
   padding: 11px 14px;
   font: inherit;
+}
+
+select {
+  flex: 1;
 }
 
 .grid {
@@ -125,8 +130,35 @@ tr.highlight {
   font-size: 0.85rem;
 }
 
-@media (max-width: 760px) {
-  .grid {
+.status {
+  min-height: 55px;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.lap-form {
+  margin-top: 12px;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-items: end;
+}
+
+.lap-form label {
+  display: grid;
+  gap: 8px;
+}
+
+button {
+  background: linear-gradient(145deg, #de1236, #ff1f43);
+  border: 0;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+@media (max-width: 860px) {
+  .grid,
+  .lap-form {
     grid-template-columns: 1fr;
   }
 }

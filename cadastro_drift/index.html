@@ -18,8 +18,8 @@
         <p class="eyebrow">Formula 1 2025</p>
         <h1>Tela de Telemetria</h1>
         <p>
-          Compare o melhor tempo de volta de <strong>3 simuladores</strong> por pista,
-          com ranking automático e destaque da volta mais rápida.
+          Compare e atualize o melhor tempo de volta de <strong>3 simuladores</strong> por
+          pista, com ranking automático e resumo dos recordes.
         </p>
       </header>
 
@@ -48,7 +48,41 @@
           <p><span>Pista:</span> <strong id="selected-track"></strong></p>
           <p><span>Mais rápido:</span> <strong id="best-sim"></strong></p>
           <p><span>Tempo recorde:</span> <strong id="best-lap"></strong></p>
+          <p class="status" id="status-message" aria-live="polite"></p>
         </article>
+      </section>
+
+      <section class="card">
+        <h2>Atualizar tempos dos 3 simuladores</h2>
+        <form id="lap-form" class="lap-form">
+          <label>
+            Simulador A
+            <input type="text" id="sim-a" placeholder="Ex: 1:29.520" required />
+          </label>
+          <label>
+            Simulador B
+            <input type="text" id="sim-b" placeholder="Ex: 1:29.612" required />
+          </label>
+          <label>
+            Simulador C
+            <input type="text" id="sim-c" placeholder="Ex: 1:29.884" required />
+          </label>
+          <button type="submit">Salvar tempos da pista</button>
+        </form>
+      </section>
+
+      <section class="card">
+        <h2>Volta mais rápida de cada pista</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Pista</th>
+              <th>Simulador líder</th>
+              <th>Tempo</th>
+            </tr>
+          </thead>
+          <tbody id="records-body"></tbody>
+        </table>
       </section>
     </main>
 
